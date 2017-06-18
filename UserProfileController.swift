@@ -2,7 +2,7 @@
 import UIKit
 import Firebase
 
-class UserProfileController: UICollectionViewController {
+class UserProfileController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -11,8 +11,27 @@ class UserProfileController: UICollectionViewController {
         navigationItem.title = FIRAuth.auth()?.currentUser?.uid
         
         fetchUser()
+        
+        //обязательно при создании хедера иначе будет падать приложение 
+        collectionView?.register(UserProfileHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerId")
     }
     
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "headerId", for: indexPath) as! UserProfileHeader
+        
+        header.user = self.user
+        
+        return header
+    }
+    
+    //задаем размеры хедера в collectionView
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: view.frame.width, height: 200)
+    }
+    
+    var user : User?
+    
+    //получаем ник зарегистрированного пользователя
     fileprivate func fetchUser() {
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
         
@@ -21,10 +40,23 @@ class UserProfileController: UICollectionViewController {
             
             guard let dictionary = snapshot.value as? [String : Any] else {return}
             
-            let username = dictionary["username"] as? String
-            self.navigationItem.title = username
+            self.user = User(dictionary: dictionary )
+            self.navigationItem.title = self.user?.username
+            self.collectionView?.reloadData()
         }) { (err) in
             print("Failed to fetch user:" , err)
         }
+    }
+}
+
+
+struct User{
+    let username : String
+    let profileImageURl : String
+    
+    init(dictionary : [String: Any]) {
+        self.username = dictionary["username"] as? String ?? ""
+        self.profileImageURl = dictionary["profileImageURl"] as? String ?? ""
+        
     }
 }
