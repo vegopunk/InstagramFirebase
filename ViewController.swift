@@ -9,16 +9,44 @@
 import UIKit
 import Firebase
 
-class ViewController: UIViewController {
+class ViewController: UIViewController , UIImagePickerControllerDelegate, UINavigationControllerDelegate{
 
     //кнопка добавления картинки на рег экране
     let plusPhotoButton : UIButton = {
         let button = UIButton(type: .system)
         //задание дефолтного изображения ???и чтобы оно оставалось исходного цвета????
         button.setImage(#imageLiteral(resourceName: "reg_addPhoto").withRenderingMode(.alwaysOriginal), for: .normal)
+        
+        button.addTarget(self, action: #selector(handlePlusPhoto), for: .touchUpInside)
         return button
     
     }()
+    
+    func handlePlusPhoto () {
+        let imagePickerController = UIImagePickerController ()
+        
+        imagePickerController.delegate = self
+        
+        imagePickerController.allowsEditing = true
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
+            plusPhotoButton.setImage(editedImage.withRenderingMode(.alwaysOriginal), for: .normal)
+        } else if let originalImage = info["ImagePickerControllerOriginalImage" ] as? UIImage {
+            plusPhotoButton.setImage(originalImage.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        
+        //делаем круглые края у кнопки загрузки фото
+        plusPhotoButton.layer.cornerRadius = plusPhotoButton.frame.width/2
+        plusPhotoButton.layer.masksToBounds = true
+        //рамка при загрузке фото
+        plusPhotoButton.layer.borderColor = UIColor.black.cgColor
+        plusPhotoButton.layer.borderWidth = 3
+        dismiss(animated: true, completion: nil)
+    }
     
     //поле ввода почты
     let emailTextField : UITextField = {
@@ -98,6 +126,33 @@ class ViewController: UIViewController {
                 print("failedto create user" , err )
             }
             print("successtully create user: ",user?.uid ?? "")
+            
+            guard let image = self.plusPhotoButton.imageView?.image else {return}
+            guard let uploadData = UIImageJPEGRepresentation(image, 0.3) else {return}
+            
+            let fileName = NSUUID().uuidString
+            FIRStorage.storage().reference().child("profile_images").child(fileName).put(uploadData, metadata: nil, completion: { (metadata, err) in
+                if let err = err {
+                    print("Failed to upload profile image:" , err)
+                    return
+                }
+                
+                guard let profileImageUrl = metadata?.downloadURL()?.absoluteString else {return}
+                print("Successfully uploaded profile image" , profileImageUrl)
+                
+                guard let uid = user?.uid else {return}
+                
+                let dictionaryValues = ["username" : username , "profileImageURl" : profileImageUrl]
+                let values = [uid:dictionaryValues]
+                
+                FIRDatabase.database().reference().child("users").updateChildValues(values, withCompletionBlock: { (err, ref) in
+                    if let err = err {
+                        print("failed to save user info into db" , err)
+                    }
+                    print("Successfully saved user info to db")
+                })
+
+            })
         })
     }
     
