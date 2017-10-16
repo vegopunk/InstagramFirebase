@@ -15,7 +15,7 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate, UINavi
     let plusPhotoButton : UIButton = {
         let button = UIButton(type: .system)
         //задание дефолтного изображения ???и чтобы оно оставалось исходного цвета????
-        button.setImage(#imageLiteral(resourceName: "reg_addPhoto").withRenderingMode(.alwaysOriginal), for: .normal)
+        button.setImage(#imageLiteral(resourceName: "camera3").withRenderingMode(.alwaysOriginal), for: .normal)
         
         button.addTarget(self, action: #selector(handlePlusPhoto), for: .touchUpInside)
         return button
@@ -159,6 +159,7 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate, UINavi
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .white
         //добавление кнопки на экран и его размещение auto layout
         view.addSubview(plusPhotoButton)
         plusPhotoButton.anchor(top: view.topAnchor, left: nil, bottom: nil, right: nil, paddingTop: 40, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 140, height: 140)
