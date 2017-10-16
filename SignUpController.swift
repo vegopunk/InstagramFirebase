@@ -9,13 +9,13 @@
 import UIKit
 import Firebase
 
-class ViewController: UIViewController , UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINavigationControllerDelegate{
 
     //кнопка добавления картинки на рег экране
     let plusPhotoButton : UIButton = {
         let button = UIButton(type: .system)
         //задание дефолтного изображения ???и чтобы оно оставалось исходного цвета????
-        button.setImage(#imageLiteral(resourceName: "camera3").withRenderingMode(.alwaysOriginal), for: .normal)
+        button.setImage(#imageLiteral(resourceName: "plus_photo").withRenderingMode(.alwaysOriginal), for: .normal)
         
         button.addTarget(self, action: #selector(handlePlusPhoto), for: .touchUpInside)
         return button

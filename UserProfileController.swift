@@ -19,7 +19,33 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         collectionView?.register(UserProfileHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerId")
         
         collectionView?.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
+        
+        setupLogOutButton()
     }
+    
+    fileprivate func setupLogOutButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "gear").withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(handleLogOut))
+    }
+    
+    func handleLogOut() {
+        //создаем всплывающее окно
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        present(alertController, animated: true, completion: nil)
+        
+        //добавляем две кнопки для всплывающего окна
+        alertController.addAction(UIAlertAction(title: "Log out", style: .destructive, handler: { (_) in
+            //выходим из приложения
+            do {
+                try FIRAuth.auth()?.signOut()
+            } catch let SignOutErr {
+                print("Failed to sign out: " , SignOutErr)
+            }
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+    }
+    
     //указываем количество ячеек
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 7
