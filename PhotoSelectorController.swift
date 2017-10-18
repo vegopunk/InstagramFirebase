@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 
 // UICollectionViewDelegateFlowLayout - для того чтобы указать размер ячейки
@@ -21,10 +22,47 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
         
         setupNavigationButtons()
         
-        collectionView?.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
+        collectionView?.register(PhotoSelectorCell.self, forCellWithReuseIdentifier: cellId)
         
         //чтобы первая фотография была большой
         collectionView?.register(UICollectionViewCell.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: headerId)
+        //добавляем фотографии
+        fetchPhotos()
+    }
+    
+    var images = [UIImage]()
+    
+    fileprivate func fetchPhotos() {
+        
+        let fetchOptions = PHFetchOptions()
+        //какое количество фотографий отображать
+        fetchOptions.fetchLimit = 10
+        
+        //сортируем по дате с самых последних 
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchOptions.sortDescriptors = [sortDescriptor]
+        
+        
+        let allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        
+        allPhotos.enumerateObjects ({ (asset, count, stop) in
+            print(asset)
+            
+            let imageManager = PHImageManager.default()
+            let targetSize = CGSize(width: 350, height: 350)
+            let options = PHImageRequestOptions()
+            options.isSynchronous = true
+            imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFit , options: options, resultHandler: { (image, info) in
+                //добавляем в массив фотографий, который создан перед этой функцией
+                if let image = image {
+                    self.images.append(image)
+                }
+                if count == allPhotos.count - 1 {
+                    self.collectionView?.reloadData()
+                }
+            
+            })
+        })
     }
     
     // расстояние между большой фотографией и фотографиями ниже
@@ -65,14 +103,14 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     
     //надо переопределять для количества ячеек
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
+        return images.count
     }
     
     //переопределять для инициализации ячейки
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath)
-        
-        cell.backgroundColor = .blue
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! PhotoSelectorCell
+        //отображаем фотографии из массива через объект из photoSelectorCell
+        cell.photoImageView.image = images[indexPath.item]
         
         return cell
     }
