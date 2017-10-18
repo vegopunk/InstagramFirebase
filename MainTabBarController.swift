@@ -29,19 +29,50 @@ class MainTabBarController: UITabBarController {
         
     }
     func setupViewControllers() {
+        //лента новостей (кнопка home)
+        let homeNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "home_unselected"), selectedImage: #imageLiteral(resourceName: "home_selected"), rootViewController: UserProfileController(collectionViewLayout: UICollectionViewFlowLayout()))
+        
+        //лента новостей (кнопка home)
+        let searchNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "search_unselected"), selectedImage: #imageLiteral(resourceName: "search_selected"))
+        
+        //кнопка камеры
+        let plusNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "plus_unselected"), selectedImage: #imageLiteral(resourceName: "plus_unselected"))
+        
+        //лайки
+        let likeNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "like_unselected"), selectedImage: #imageLiteral(resourceName: "like_selected"))
+        
+        //профиль юзера
         let layout = UICollectionViewFlowLayout()
         let userProfileController = UserProfileController(collectionViewLayout: layout)
         
-        let navController = UINavigationController(rootViewController: userProfileController)
+        let userProfileNavController = UINavigationController(rootViewController: userProfileController)
         
-        navController.tabBarItem.image = #imageLiteral(resourceName: "profile_unselected")
-        navController.tabBarItem.selectedImage = #imageLiteral(resourceName: "profile_selected")
+        userProfileNavController.tabBarItem.image = #imageLiteral(resourceName: "profile_unselected")
+        userProfileNavController.tabBarItem.selectedImage = #imageLiteral(resourceName: "profile_selected")
         
         tabBar.tintColor = .black
         
-        viewControllers = [navController , UIViewController()]
+        viewControllers = [homeNavController ,
+                           searchNavController,
+                           plusNavController,
+                           likeNavController,
+                           userProfileNavController]
+        
+
+        //отрисовываем картинки таббара чуть ниже
+        guard let items = tabBar.items else {return}
+        
+        for item in items {
+            item.imageInsets = UIEdgeInsets(top: 4, left: 0, bottom: -4, right: 0)
+        }
     }
-    
+    fileprivate func templateNavComntroller(unselectedImage: UIImage , selectedImage: UIImage, rootViewController: UIViewController = UIViewController()) -> UINavigationController {
+        let viewController = rootViewController
+        let navController = UINavigationController(rootViewController: viewController)
+        navController.tabBarItem.image = unselectedImage
+        navController.tabBarItem.selectedImage = selectedImage
+        return navController
+    }
     
 }
 
