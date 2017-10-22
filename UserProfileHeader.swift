@@ -6,14 +6,16 @@ class UserProfileHeader: UICollectionViewCell {
     
     var user : User?{
         didSet{
-            setupProfileImage()
+            
+            guard let profileImageUrl = user?.profileImageURl else {return}
+            profileImageView.loadImage(urlString: profileImageUrl)
             
             usernameLabel.text = user?.username
         }
     }
     
-    let profileImageView : UIImageView = {
-        let iv = UIImageView()
+    let profileImageView : CustomImageView = {
+        let iv = CustomImageView()
         
         
         return iv
@@ -157,27 +159,6 @@ class UserProfileHeader: UICollectionViewCell {
         bottomDividerView.anchor(top: stackView.bottomAnchor, left: leftAnchor, bottom: nil, right: rightAnchor, paddingTop:  0, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 0, height: 0.5 )
     }
     
-        fileprivate func setupProfileImage() {
-        guard let profileImageURl = user?.profileImageURl else {return}
-        guard let url = URL(string: profileImageURl) else {return}
-        
-        URLSession.shared.dataTask(with: url) { (data, response, err) in
-            
-            //чек ошибки , затем загрузка картинки из базы
-            if let err = err {
-                print("Failed to fetch profile image:" , err )
-                return
-            }
-            
-            //проверка статуса (если 200 то все ОК)
-            guard let data = data else {return}
-            
-            let image = UIImage(data: data)
-            DispatchQueue.main.async{
-                self.profileImageView.image = image
-            }
-            }.resume()
-    }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
