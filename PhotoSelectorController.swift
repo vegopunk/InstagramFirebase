@@ -31,10 +31,15 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     }
     
     
+    //отрабатывает когда нажали на нужную фотографию
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //определяем какую фотографию выбрали
         self.selectedImage = images[indexPath.item]
         self.collectionView?.reloadData()
+        
+        //делаем скрол вверх
+        let indexPath = IndexPath(item: 0, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
     
     var selectedImage : UIImage?
@@ -104,10 +109,15 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
         return CGSize(width: width, height: width)
     }
     
+    var header : PhotoSelectorHeader?
+    
     //для большой первой фотографии
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as! PhotoSelectorHeader
+        
+        self.header = header
+        
         //чтобы большая фотография изменялась на нажатую
         header.photoImageView.image = selectedImage
         
@@ -170,7 +180,10 @@ class PhotoSelectorController: UICollectionViewController, UICollectionViewDeleg
     }
     
     func handleNext() {
-        print("Handling next")
+        //добавляем в стак контроллеров новый контроллер
+        let sharePhotoController = SharePhotoController()
+        sharePhotoController.selectedImage = header?.photoImageView.image
+        navigationController?.pushViewController(sharePhotoController, animated: true)
     }
     
     func handleCancel() {
