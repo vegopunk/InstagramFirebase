@@ -18,9 +18,35 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         //обязательно при создании хедера иначе будет падать приложение 
         collectionView?.register(UserProfileHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerId")
         
-        collectionView?.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellId)
+        collectionView?.register(UserProfilePhotoCell.self, forCellWithReuseIdentifier: cellId)
         
         setupLogOutButton()
+        
+        fetchPosts()
+    }
+    
+    var posts = [Post]()
+    
+    fileprivate func fetchPosts() {
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
+        let ref = FIRDatabase.database().reference().child("posts").child(uid)
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+            //print(snapshot.value)
+            guard let dictionaries = snapshot.value as? [String : Any] else {return}
+            dictionaries.forEach({ (key,value) in
+                //print("Key: \(key) , Value: \(value)")
+                guard let dictionary = value as? [String: Any] else {return}
+                let imageUrl = dictionary["imageUrl"] as? String
+                
+                let post = Post(dictionary: dictionary)
+                print(post.imageUrl)
+                self.posts.append(post)
+            })
+            self.collectionView?.reloadData()
+        }) { (err) in
+            print("Failed to fetch posts: ", err)
+            
+        }
     }
     
     fileprivate func setupLogOutButton() {
@@ -54,12 +80,12 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     
     //указываем количество ячеек
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 7
+        return posts.count
     }
     //создание ячейки для одной фотографии
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath)
-        cell.backgroundColor = .purple
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! UserProfilePhotoCell
+        cell.post = posts[indexPath.item]
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
