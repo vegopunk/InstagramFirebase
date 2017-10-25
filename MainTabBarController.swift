@@ -48,7 +48,7 @@ class MainTabBarController: UITabBarController, UITabBarControllerDelegate {
     }
     func setupViewControllers() {
         //лента новостей (кнопка home)
-        let homeNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "home_unselected"), selectedImage: #imageLiteral(resourceName: "home_selected"), rootViewController: UserProfileController(collectionViewLayout: UICollectionViewFlowLayout()))
+        let homeNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "home_unselected"), selectedImage: #imageLiteral(resourceName: "home_selected"), rootViewController: HomeController(collectionViewLayout: UICollectionViewFlowLayout()))
         
         //лента новостей (кнопка home)
         let searchNavController = templateNavComntroller(unselectedImage: #imageLiteral(resourceName: "search_unselected"), selectedImage: #imageLiteral(resourceName: "search_selected"))
