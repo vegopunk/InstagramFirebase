@@ -25,11 +25,15 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
     var posts = [Post]()
     fileprivate func fetchPosts() {
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
+       
+        FIRDatabase.fetchUserWithUID(uid: uid) { (user) in
+            self.fetchPostsWithUser(user: user)
+        }
+    }
         
-        FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+         func fetchPostsWithUser (user: User) {
             
-            guard let userDictionary = snapshot.value as? [String: Any] else {return}
-            let user = User(dictionary: userDictionary)
+            guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
             
             let ref = FIRDatabase.database().reference().child("posts").child(uid)
             ref.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -45,13 +49,8 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
                 print("Failed to fetch posts: ", err)
                 
             }
-            
-        }) { (err) in
-            print("Failed to fetch user for posts:" , err)
         }
-        
-        
-    }
+    
     
     func setupNavigationItems() {
         navigationItem.titleView = UIImageView(image: #imageLiteral(resourceName: "logo2"))
