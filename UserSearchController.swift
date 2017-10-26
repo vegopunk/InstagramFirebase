@@ -49,9 +49,27 @@ class UserSearchController : UICollectionViewController, UICollectionViewDelegat
         collectionView?.register(UserSearchCell.self, forCellWithReuseIdentifier: cellId)
         //чтобы можно было прокурчивать список
         collectionView?.alwaysBounceVertical = true
-        
+        //убирает клавиатуру при свайпе вниз
+        collectionView?.keyboardDismissMode = .onDrag
         
         fetchUsers()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        searchBar.isHidden = false
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //убирает строку поиска при переходе
+        searchBar.isHidden = true
+        //убирает клаиватуру при переходе
+        searchBar.resignFirstResponder()
+        let user = filteredUsers[indexPath.item]
+        print(user.username)
+        let userProfileController = UserProfileController(collectionViewLayout: UICollectionViewFlowLayout())
+        userProfileController.userId = user.uid
+        navigationController?.pushViewController(userProfileController, animated: true)
     }
     
     var filteredUsers = [User]()
@@ -66,6 +84,11 @@ class UserSearchController : UICollectionViewController, UICollectionViewDelegat
             guard let dictionaries = snapshot.value as? [String: Any] else {return}
             
             dictionaries.forEach({ (key,value) in
+                
+                if key == FIRAuth.auth()?.currentUser?.uid {
+                    print("Found my self")
+                    return
+                }
                 
                 guard let userDictionary = value as? [String: Any] else {return}
                 let user = User(uid: key, dictionary: userDictionary)
