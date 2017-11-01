@@ -21,6 +21,10 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
         
         setupNavigationItems()
         fetchPosts()
+        
+        fetchFollowingUserIds()
+        
+        
     }
     var posts = [Post]()
     fileprivate func fetchPosts() {
@@ -30,12 +34,25 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
             self.fetchPostsWithUser(user: user)
         }
     }
+    fileprivate func fetchFollowingUserIds() {
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
+        FIRDatabase.database().reference().child("following").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            guard let userIdsDictionary = snapshot.value as? [String : Any] else {return}
+            
+            userIdsDictionary.forEach({ (key,value) in
+                FIRDatabase.fetchUserWithUID(uid: key, completion: { (user) in
+                    self.fetchPostsWithUser(user: user)
+                })
+            })
+        }) { (err) in
+            print("Failed to fetch following user: " , err)
+        }
+    }
         
          func fetchPostsWithUser (user: User) {
             
-            guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
-            
-            let ref = FIRDatabase.database().reference().child("posts").child(uid)
+            let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
             ref.observeSingleEvent(of: .value, with: { (snapshot) in
                 guard let dictionaries = snapshot.value as? [String : Any] else {return}
                 dictionaries.forEach({ (key,value) in
@@ -44,6 +61,12 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
                     let post = Post(user: user, dictionary: dictionary)
                     self.posts.append(post)
                 })
+                
+                //сортируем новостную ленту по дате добавления
+                self.posts.sort(by: { (p1, p2) -> Bool in
+                    return p1.creationDate.compare(p2.creationDate) == .orderedDescending
+                })
+                
                 self.collectionView?.reloadData()
             }) { (err) in
                 print("Failed to fetch posts: ", err)
