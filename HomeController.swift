@@ -100,8 +100,17 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
     
     func setupNavigationItems() {
         navigationItem.titleView = UIImageView(image: #imageLiteral(resourceName: "logo2"))
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "camera3").withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(handleCamera))
     }
     
+    func handleCamera() {
+        print("handle camera...")
+        
+        let cameraController = CameraController()
+        
+        present(cameraController, animated: true, completion: nil)
+    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var height : CGFloat = 40 + 8 + 8 //username userprofileimageview
