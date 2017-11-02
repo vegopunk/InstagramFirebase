@@ -130,7 +130,6 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! HomePostCell
         cell.post = posts[indexPath.item]
         cell.delegate = self
-        
         return cell
     }
     
