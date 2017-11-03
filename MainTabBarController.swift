@@ -31,7 +31,7 @@ class MainTabBarController: UITabBarController, UITabBarControllerDelegate {
         
         self.delegate = self
         
-        if FIRAuth.auth()?.currentUser == nil {
+        if Auth.auth().currentUser == nil {
             //показывать если не залогинен
             //обязательно асинхронно переходить на другой контроллер
             DispatchQueue.main.async {

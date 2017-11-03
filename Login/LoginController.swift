@@ -86,7 +86,7 @@ class LoginController: UIViewController {
         guard let email = emailTextField.text else {return}
         guard let password = passwordTextField.text else {return}
         
-        FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, err) in
+        Auth.auth().signIn(withEmail: email, password: password, completion: { (user, err) in
             if let err = err {
                 print("Faild to sign in with email: " , err)
                 return

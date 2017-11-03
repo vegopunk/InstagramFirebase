@@ -29,7 +29,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     
     fileprivate func fetchOrderedPosts() {
         guard let uid = self.user?.uid else {return}
-        let ref = FIRDatabase.database().reference().child("posts").child(uid)
+        let ref = Database.database().reference().child("posts").child(uid)
         
         ref.queryOrdered(byChild: "creationDate").observe(.childAdded, with: { (snapshot) in
             guard let dictionary = snapshot.value as? [String: Any] else {return}
@@ -56,7 +56,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         alertController.addAction(UIAlertAction(title: "Log out", style: .destructive, handler: { (_) in
             //выходим из приложения
             do {
-                try FIRAuth.auth()?.signOut()
+                try Auth.auth().signOut()
                 
                 //переходим на логин контроллер
                 let loginController = LoginController()
@@ -113,11 +113,11 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     //получаем ник зарегистрированного пользователя
     fileprivate func fetchUser() {
         
-        let uid = userId ?? (FIRAuth.auth()?.currentUser?.uid ?? "")
+        let uid = userId ?? (Auth.auth().currentUser?.uid ?? "")
         
         //guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
         
-        FIRDatabase.fetchUserWithUID(uid: uid) { (user) in
+        Database.fetchUserWithUID(uid: uid) { (user) in
             self.user = user
             self.navigationItem.title = self.user?.username
             self.collectionView?.reloadData()

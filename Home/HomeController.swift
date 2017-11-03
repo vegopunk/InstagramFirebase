@@ -48,20 +48,20 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
     
     var posts = [Post]()
     fileprivate func fetchPosts() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
+        guard let uid = Auth.auth().currentUser?.uid else {return}
        
-        FIRDatabase.fetchUserWithUID(uid: uid) { (user) in
+        Database.fetchUserWithUID(uid: uid) { (user) in
             self.fetchPostsWithUser(user: user)
         }
     }
     fileprivate func fetchFollowingUserIds() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
-        FIRDatabase.database().reference().child("following").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        Database.database().reference().child("following").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             
             guard let userIdsDictionary = snapshot.value as? [String : Any] else {return}
             
             userIdsDictionary.forEach({ (key,value) in
-                FIRDatabase.fetchUserWithUID(uid: key, completion: { (user) in
+                Database.fetchUserWithUID(uid: key, completion: { (user) in
                     self.fetchPostsWithUser(user: user)
                 })
             })
@@ -72,7 +72,7 @@ class HomeController: UICollectionViewController , UICollectionViewDelegateFlowL
         
          func fetchPostsWithUser (user: User) {
             
-            let ref = FIRDatabase.database().reference().child("posts").child(user.uid)
+            let ref = Database.database().reference().child("posts").child(user.uid)
             ref.observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 self.collectionView?.refreshControl?.endRefreshing()

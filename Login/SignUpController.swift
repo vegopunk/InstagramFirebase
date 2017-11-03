@@ -121,17 +121,17 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
         guard let username = usernameTextField.text , username.characters.count > 0 else {return}
         guard let password = passwordTextField.text , password.characters.count > 0 else {return}
         
-        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user: FIRUser?, error: Error?) in
-            if let err = error {
+        Auth.auth().createUser(withEmail: email, password: password) { (User, Error) in
+            if let err = Error {
                 print("failedto create user" , err )
             }
-            print("successtully create user: ",user?.uid ?? "")
+            print("successtully create user: ",User?.uid ?? "")
             
             guard let image = self.plusPhotoButton.imageView?.image else {return}
             guard let uploadData = UIImageJPEGRepresentation(image, 0.3) else {return}
             
             let fileName = NSUUID().uuidString
-            FIRStorage.storage().reference().child("profile_images").child(fileName).put(uploadData, metadata: nil, completion: { (metadata, err) in
+            Storage.storage().reference().child("profile_images").child(fileName).putData(uploadData, metadata: nil, completion: { (metadata, err) in
                 if let err = err {
                     print("Failed to upload profile image:" , err)
                     return
@@ -140,12 +140,12 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
                 guard let profileImageUrl = metadata?.downloadURL()?.absoluteString else {return}
                 print("Successfully uploaded profile image" , profileImageUrl)
                 
-                guard let uid = user?.uid else {return}
+                guard let uid = User?.uid else {return}
                 
                 let dictionaryValues = ["username" : username , "profileImageURl" : profileImageUrl]
                 let values = [uid:dictionaryValues]
                 
-                FIRDatabase.database().reference().child("users").updateChildValues(values, withCompletionBlock: { (err, ref) in
+                Database.database().reference().child("users").updateChildValues(values, withCompletionBlock: { (err, ref) in
                     if let err = err {
                         print("failed to save user info into db" , err)
                     }
@@ -158,10 +158,10 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
                     self.dismiss(animated: true, completion: nil)
                     
                 })
-
+                
             })
-        })
-    }
+        }
+        
     
     let alreadyHaveAccountButton : UIButton = {
         let button = UIButton(type: .system)
@@ -174,11 +174,9 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
         return button
     }()
     
-    func handleAlreadyHaveAccount() {
-        _ = navigationController?.popViewController(animated: true)
-    }
     
-    override func viewDidLoad() {
+    
+        func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
@@ -199,7 +197,7 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
             }
 
 
-    fileprivate func setupInputFields() {
+    func setupInputFields() {
         
         let redView = UIView()
         redView.backgroundColor = .red
@@ -221,6 +219,10 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
         
     }
     
+}
+    func handleAlreadyHaveAccount() {
+        _ = navigationController?.popViewController(animated: true)
+    }
 }
 
 

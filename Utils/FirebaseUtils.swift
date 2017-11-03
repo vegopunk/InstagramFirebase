@@ -9,9 +9,9 @@
 import Foundation
 import Firebase
 
-extension FIRDatabase {
+extension Database {
     static func fetchUserWithUID (uid: String, completion: @escaping (User) -> ()) {
-        FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+        Database.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             
             guard let userDictionary = snapshot.value as? [String: Any] else {return}
             

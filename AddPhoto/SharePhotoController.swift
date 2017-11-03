@@ -63,17 +63,18 @@ class SharePhotoController: UIViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
         
         let filename = NSUUID().uuidString
-        FIRStorage.storage().reference().child("posts").child(filename).put(uploadData, metadata: nil) { (metadata, err) in
+        Storage.storage().reference().child("posts").child(filename).putData(uploadData, metadata: nil) { (metadata, err) in
             if let err = err {
                 self.navigationItem.rightBarButtonItem?.isEnabled = true
                 print("Failed to upload post image: \(err)")
             }
-            
+
             guard let imageUrl = metadata?.downloadURL()?.absoluteString else {return}
             print("Successfully uploaded post image: " , imageUrl)
-            
+
             self.saveImageToDatabaseWithImageUrl(imageUrl: imageUrl)
         }
+        
     }
     
     //убираем время, батарею и тд
@@ -86,9 +87,9 @@ class SharePhotoController: UIViewController {
 fileprivate func saveImageToDatabaseWithImageUrl(imageUrl: String) {
     guard let postImage = selectedImage else {return}
     guard let caption = textView.text else {return}
-    guard let uid = FIRAuth.auth()?.currentUser?.uid else {return}
+    guard let uid = Auth.auth().currentUser?.uid else {return}
     
-    let userPostRef = FIRDatabase.database().reference().child("posts").child(uid)
+    let userPostRef = Database.database().reference().child("posts").child(uid)
     let ref = userPostRef.childByAutoId()
     let values = ["imageUrl": imageUrl , "caption" : caption , "imageWidth" : postImage.size.width , "imageHeight" : postImage.size.height , "creationDate" : Date().timeIntervalSince1970] as [String : Any]
     ref.updateChildValues(values) { (err, ref) in
