@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     //кнопка добавления картинки на рег экране
     let plusPhotoButton : UIButton = {
@@ -62,7 +62,7 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
     }()
     
     func handleTextInputChange () {
-        let isFormValid = emailTextField.text?.characters.count ?? 0 > 0 && usernameTextField.text?.characters.count ?? 0 > 0 && passwordTextField.text?.characters.count ?? 0 > 0
+        let isFormValid = emailTextField.text?.count ?? 0 > 0 && usernameTextField.text?.count ?? 0 > 0 && passwordTextField.text?.count ?? 0 > 0
         
         if isFormValid{
             signUpButton.isEnabled = true
@@ -117,9 +117,9 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
     
     func handleSignUp() {
         
-        guard let email = emailTextField.text , email.characters.count > 0 else {return}
-        guard let username = usernameTextField.text , username.characters.count > 0 else {return}
-        guard let password = passwordTextField.text , password.characters.count > 0 else {return}
+        guard let email = emailTextField.text , email.count > 0 else {return}
+        guard let username = usernameTextField.text , username.count > 0 else {return}
+        guard let password = passwordTextField.text , password.count > 0 else {return}
         
         Auth.auth().createUser(withEmail: email, password: password) { (User, Error) in
             if let err = Error {
@@ -158,9 +158,9 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
                     self.dismiss(animated: true, completion: nil)
                     
                 })
-                
             })
         }
+    }
         
     
     let alreadyHaveAccountButton : UIButton = {
@@ -176,7 +176,7 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
     
     
     
-        func viewDidLoad() {
+        override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
@@ -194,7 +194,7 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
         //функция добавления полей ввода и кнопки в стаке
         setupInputFields()
         
-            }
+        }
 
 
     func setupInputFields() {
@@ -219,7 +219,7 @@ class SignUpController: UIViewController , UIImagePickerControllerDelegate, UINa
         
     }
     
-}
+
     func handleAlreadyHaveAccount() {
         _ = navigationController?.popViewController(animated: true)
     }

@@ -120,9 +120,9 @@ class CameraController: UIViewController , AVCapturePhotoCaptureDelegate,  UIVie
             captureSession.addOutput(output)
         }
         //setup output preview
-        guard let previewLayer  = AVCaptureVideoPreviewLayer(session: captureSession) else {return}
-        previewLayer.frame = view.frame
-        view.layer.addSublayer(previewLayer)
+         let previewLayer  = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer?.frame = view.frame
+        view.layer.addSublayer(previewLayer!)
         captureSession.startRunning()
     }
 }
